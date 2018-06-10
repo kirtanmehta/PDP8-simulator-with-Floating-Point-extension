@@ -1,0 +1,38 @@
+Author: Kirtan Mehta, Vinoth GV, Chenyang Li, Mohammad Suheb Zameer
+
+**************************************************************************************************************************************
+
+How to Run a script to convert the floating values into the decimal format
+-------------------------------------------------------------------------
+
+
+    ---> Make pdp8fp executable with the following command
+            chmod +x pdp8fp
+
+    ---> pdp8fp generates hex values by default
+
+    ---> Use -h or -o for hex or octal generation. If you don't use any flags it will take hex values automatically
+
+            Example:
+                    ./pdp8fp 
+                        It will run the input file of floating point values in hex and will put the output in fp_out file
+
+                    ./pdp8fp -h
+                        It will run the input file of floating point values in hex and will put the output in fp_out file
+                     
+                     ./pdp8fp -o
+                         It will run the input file of floating point values in octal and puts the output in fp_out file
+
+    ---> Give any value while running the script to generate the pdp8 floating point format.
+
+            Example:
+                    ./pdp8fp 83.4234
+                        It will display the pdp8 floating point value format in hex by default.
+
+                    ./pdp8fp -h 83.4234
+                        It will display the pdp8 floating point value format in hex.
+                    
+                    ./pdp8fp -o 83.4234
+                    It will display the pdp8 floating point value format in octal
+                    
+*****************************************************************************************************************************************

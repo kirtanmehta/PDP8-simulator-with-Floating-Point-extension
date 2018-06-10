@@ -1,0 +1,43 @@
+#!/bin/bash
+if [ "$1" = "-o" ] || [ "$1" = "-h" ] 
+then
+	if [ "$1" = "-o" ] 
+	then
+		echo "running octal stats"
+		if [ -z "$2" ] 
+		then
+			echo "no arg"
+			vsim -c +format=o -do "run -all;exit" convert
+		else
+			echo "yes arg"
+			vsim -c +format=o +arg=$2 -do "run -all;exit" convert
+		fi		
+	
+	elif [ "$1" = "-h" ] 
+	then
+		echo "running hex stattus" 
+		if [ -z "$2" ] 
+		then
+			echo "no arg"
+			vsim -c -do "run -all;exit" convert
+		else
+			echo "yes arg"
+			vsim -c +arg=$2 -do "run -all;exit" convert
+		fi		
+
+	else
+		echo "running hex stats and no args"
+		vsim -c -do "run -all;exit" convert
+	fi
+
+else
+	if [ -z "$1" ] 
+	then
+		echo "default hex and running file"
+		vsim -c -do "run -all;exit" convert
+	else
+		echo "default hex and converting numbers"
+		vsim -c +arg=$1 -do "run -all;exit" convert
+	fi
+
+fi

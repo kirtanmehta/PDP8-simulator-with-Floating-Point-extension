@@ -1,0 +1,40 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 d/u/kmehta/Documents/comp_arch/pdp8/bin
+T_opt
+!s110 1527923507
+VoSTCmI3l9B_kzkgg?iiKK3
+04 4 4 work PDP8 fast 0
+=1-b82a72deaf84-5b124333-678f8-34d9
+o-quiet -auto_acc_if_foreign -work work
+n@_opt
+OL;O;10.4c;61
+R0
+vPDP8
+!s110 1528610760
+!i10b 1
+!s100 iaReGm_oz6:_PDgLQEK[T1
+I;Zge@=XbVf]UfR`I9lYha2
+VDg1SIo80bB@j0V0VzS_@n1
+d/u/kmehta/Documents/comp_arch/pdp8
+w1527923504
+8bin/pdp8.v
+Fbin/pdp8.v
+L0 34
+OL;L;10.4c;61
+r1
+!s85 0
+31
+!s108 1528610760.000000
+!s107 bin/pdp8.v|
+!s90 bin/pdp8.v|
+!i113 0
+o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+n@p@d@p8
