@@ -7,12 +7,12 @@ build:
 
 compile:
 	#cd bin
-	vlog bin/pdp8.v
+	vlog pdp8.v
 	#cd ..
 
 run:
-	cd bin
+#	cd bin
 	vsim -c -do "run;exit" PDP8
-	cd ..
+#	cd ..
 
 all:	mem compile run
