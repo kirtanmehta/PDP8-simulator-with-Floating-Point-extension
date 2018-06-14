@@ -16,7 +16,7 @@ FPMULT=6554
 Main,	FPCLAC
 		FPLOAD 
 		A
-		FPMULT
+		FPADD
 		B
 		FPSTOR
 		C
