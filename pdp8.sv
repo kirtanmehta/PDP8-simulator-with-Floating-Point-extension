@@ -351,19 +351,25 @@ task FP_mult;
 		if (mant_out[0]==1)
 		begin
 			exp = FP_AC[1:8] + temp[1:8] - 127 +1; 
-			mant_out = mant_out >> 1;	 
+			$display("exp value in mult = %d", exp);
+			mant_out = mant_out >> 1;
+			FP_AC = {sgn,exp[7:0],mant_out[2:+22]};	
+			$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] ); 
 		end
 
-		else
+		else if (mant_out[0] == 0)
 		begin
 			exp = FP_AC[1:8] + temp[1:8] - 127;
+			$display("exp value in mult = %d", exp);
+			FP_AC = {sgn,exp[7:0],mant_out[2:+22]};
+			$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] );
 		end
 
-		$display("exp value in mult = %d", exp);
 		
-		FP_AC = {sgn,exp[7:0],mant_out[2:+22]};
+		
+		// FP_AC = {sgn,exp[7:0],mant_out[2:+22]};
 
-		$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] );
+		// $display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] );
 	end
 
 endtask
@@ -375,11 +381,13 @@ endtask
 // 	reg [0:31]temp;
 // 	reg [0:7] exp_1;
 // 	reg [0:7] exp_2;
+// 	reg [0:7] exp_out;
+// 	reg [0;7] exp_diff;
 
 // 	reg [0:23]mant_1 ; 
 // 	reg [0:23]mant_2 ;
-// 	reg [0:47]mant_int ;
-// 	reg [0:47]mant_out;
+// 	reg [0:24]mant_int ;
+// 	reg [0:24]mant_out;
 
 // 	begin
 
@@ -395,14 +403,41 @@ endtask
 // 		mant_2 = {1'b1,temp[9:31]}; 
 // 		$display("mant_2 in mult = %b", mant_2);
 
-// 		if (exp_1 > exp_2)
+// 		if (exp_1 == exp_2)
 // 		begin
-			  
+// 			mant_out = mant_1 + mant_2
+// 			exp_out = exp_1;	
+// 		end
+
+// 		else if (exp_1 > exp_2)
+// 		begin
+// 			exp_diff = exp_1 - exp_2;
+// 			mant_int = mant_2 >> exp_diff;
+// 			exp_out = exp_1;
+// 			mant_out = mant_int + mant_1; 
+// 		end
+
+// 		else if (exp_2 > exp_1)
+// 		begin
+// 			exp_diff = exp_2 - exp_1;
+// 			mant_int = mant_1 >> exp_diff;
+// 			exp_out = exp_2;
+// 			mant_out = mant_int + mant_2;
+// 		end
+		
+// 		else
+// 		begin
+// 			$display("chutiya kata");
+// 		end
+		
+// 		if (mant_out[0] == 1'b1)
+// 		begin
+			
 // 		end
 // 	end
 
 // endtask
-//
+
 // Compute effective address taking into account indirect and auto-increment.
 // Advance Clocks accordingly.  Auto-increment applies to indirect references
 // to addresses 10-17 (octal) on page 0.
