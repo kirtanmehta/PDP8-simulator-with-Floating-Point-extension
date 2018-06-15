@@ -6,7 +6,7 @@
 #include <string.h>
 #include <time.h>
 
-#define MAX 10
+#define MAX 2
 
 union{
     float f;
