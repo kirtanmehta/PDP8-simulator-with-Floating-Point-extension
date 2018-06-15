@@ -7,7 +7,7 @@ build:
 
 compile:
 	#cd bin
-	vlog pdp8.v
+	vlog pdp8.sv
 	#cd ..
 
 run:

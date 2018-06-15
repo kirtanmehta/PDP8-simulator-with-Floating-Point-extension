@@ -236,7 +236,7 @@ task Execute;
 
 				FPADD  :begin
 				  	$display("FP instruction is FPADD");
-				//	FP_add;
+					FP_add;
 					$display("Value at FP_AC = %o", FP_AC);
 				end 
 
@@ -287,20 +287,12 @@ task FP_store;
 	end
 endtask
 
-
-task FP_add;
-	begin
-	  	EffectiveAddress_FP(MA);
-	  	//FP_AC = FP_AC + {Mem[MA+2],Mem[MA + 1], Mem[MA]};
-	end
-endtask
-
-
 task FP_mult;
 	//reg [11:0] row_1, row_2, row_3;
 	reg sgn;
 	reg [0:31]temp;
-	reg [0:7] exp;
+	// reg [0:7] exp;
+	integer exp;
 
 	reg [0:23]mant_1 ; 
 	reg [0:23]mant_2 ;
@@ -327,6 +319,7 @@ task FP_mult;
 		$display("temp in mult = %o ", temp);
 		sgn = FP_AC[0]^temp[0];
 		
+
 		mant_1 = {1'b1,FP_AC[9:31]};
 		$display("mant_1 in mult = %b", mant_1);
 		mant_2 = {1'b1,temp[9:31]}; 
@@ -345,32 +338,110 @@ task FP_mult;
 		$display("mant_out = %b", mant_out);
 		
 		$display("exp 1 = %d", FP_AC[1:8] );
-			$display("exp 2 = %d", temp[1:8] );
+		$display("exp 2 = %d", temp[1:8] );
 		
 		if (mant_out[0]==1)
 		begin
-			
 			exp = FP_AC[1:8] + temp[1:8] - 127 +1; 
+			$display("exp value in mult = %d", exp);
 			mant_out = mant_out >> 1;
-
-			 
+			FP_AC = {sgn,exp[7:0],mant_out[2:+22]};	
+			$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] ); 
 		end
 
-		else
+		else if (mant_out[0] == 0)
 		begin
 			exp = FP_AC[1:8] + temp[1:8] - 127;
+			$display("exp value in mult = %d", exp);
+			FP_AC = {sgn,exp[7:0],mant_out[2:+22]};
+			$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] );
 		end
 
-		$display("exp value in mult = %d", exp);
 		
-		FP_AC = {sgn,exp,mant_out[2:+22]};
 		
-		$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp}, {sgn,mant_out[2:12]}, mant_out[13:24] );
+		// FP_AC = {sgn,exp[7:0],mant_out[2:+22]};
+
+		// $display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] );
 	end
 
 endtask
 
-//
+
+task FP_add;
+
+	reg sgn;
+	reg [0:31]temp;
+	reg [0:7] exp_1;
+	reg [0:7] exp_2;
+	reg [0:7] exp_out;
+	reg [0:7] exp_diff;
+
+	reg [0:23]mant_1 ; 
+	reg [0:23]mant_2 ;
+	reg [0:24]mant_int ;
+	reg [0:24]mant_out;
+
+	begin
+
+		EffectiveAddress_FP(MA); 
+		temp = {Mem[MA+1][0],Mem[MA][3:10],Mem[MA + 1][1:11],Mem[MA+2]};
+		$display("temp in mult = %o ", temp);
+
+		exp_1 = FP_AC[1:8];
+		exp_2 = temp[1:8];
+
+		mant_1 = {1'b1,FP_AC[9:31]};
+		$display("mant_1 in ADD = %b", mant_1);
+		mant_2 = {1'b1,temp[9:31]}; 
+		$display("mant_2 in ADD = %b", mant_2);
+
+		if (exp_1 == exp_2)
+		begin
+			$display(" both exponents are equal");
+			mant_out = mant_1 + mant_2;
+			exp_out = exp_1;	
+		end
+
+		else if (exp_1 > exp_2)
+		begin
+			$display("accumulator exponent is bigger");
+			exp_diff = exp_1 - exp_2;
+			mant_int = mant_2 >> exp_diff;
+			exp_out = exp_1;
+			mant_out = mant_int + mant_1; 
+		end
+
+		else if (exp_2 > exp_1)
+		begin
+			$display("temp exp is big");
+			exp_diff = exp_2 - exp_1;
+			mant_int = mant_1 >> exp_diff;
+			exp_out = exp_2;
+			mant_out = mant_int + mant_2;
+		end
+		
+		else
+		begin
+			$display("chutiya kata");
+		end
+		
+		if (mant_out[0] == 1'b1)
+		begin
+			mant_out = mant_out >> 1;
+			exp_out = exp_out + 1;
+			// $display("mantissa output = %");
+		end
+
+		else
+		begin
+			$display("vapas chutiya kata");
+		end
+
+		$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] );
+	end
+
+endtask
+
 // Compute effective address taking into account indirect and auto-increment.
 // Advance Clocks accordingly.  Auto-increment applies to indirect references
 // to addresses 10-17 (octal) on page 0.
