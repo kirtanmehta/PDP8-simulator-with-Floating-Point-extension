@@ -1,5 +1,5 @@
 mem:
-	bin/pal -v automation/kirtan.as
+	bin/pal -v pdp8_fp.as
 
 build:
 	vlib bin/work

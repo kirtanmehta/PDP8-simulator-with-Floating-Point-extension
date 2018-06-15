@@ -16,7 +16,7 @@ FPMULT=6554
 Main,	FPCLAC
 		FPLOAD 
 		A
-		FPADD
+		FPMULT
 		B
 		FPSTOR
 		C
@@ -27,11 +27,11 @@ Main,	FPCLAC
 /
 /
 *0300
-A,	0203
- 	3376
-	5605
-B,	0170
-	1075
- 	3412
+A,	0157
+	7517
+	1206
+B,	0123
+	2171
+	4573
 C,
 $Main

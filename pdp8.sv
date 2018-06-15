@@ -159,8 +159,8 @@ endtask
 task Fetch;
   begin
   IR = Mem[PC];
-  $display("CONTENTS OF IR = %o", IR);
-  $display("CONTENTS OF PC = %o", PC);
+//   $display("CONTENTS OF IR = %o", IR);
+//   $display("CONTENTS OF PC = %o", PC);
   CPage = PC[0:4];	// Need to maintain this BEFORE PC is incremented for EA calculation
   PC = PC + 1;
   end
@@ -211,7 +211,7 @@ task Execute;
 			
 	IOT:	begin	
 			//$display("IOT instruction at PC = %0o",PC-1," ignored");
-			$display("IOT instruction at PC = %0o",PC-1);
+			// $display("IOT instruction at PC = %0o",PC-1);
 			
 			if (IR[3:8] == 6'o55) begin
 				
@@ -225,27 +225,27 @@ task Execute;
 				FPLOAD  :begin
 				  	$display("FP instruction is FPLOAD");
 					FP_load;
-					$display("Value at FP_AC in octal = %o", FP_AC);
-					$display("Value at FP_AC in hex = %h", FP_AC);
+					// $display("Value at FP_AC in octal = %o", FP_AC);
+					// $display("Value at FP_AC in hex = %h", FP_AC);
 				end 
 
 				FPSTOR  :begin
 				  	$display("FP instruction is FPSTOR");
 					FP_store;
-					$display("Value at FP_AC in octal = %o", FP_AC);
-					$display("Value at FP_AC in hex = %h", FP_AC);
+					// $display("Value at FP_AC in octal = %o", FP_AC);
+					// $display("Value at FP_AC in hex = %h", FP_AC);
 				end 
 
 				FPADD  :begin
 				  	$display("FP instruction is FPADD");
 					FP_add;
-					$display("Value at FP_AC = %o", FP_AC);
+					// $display("Value at FP_AC = %o", FP_AC);
 				end 
 
 				FPMULT  :begin
 				  	$display("FP instruction is FPMULT");
 					  FP_mult;
-					  $display("Value at FP_AC = %o", FP_AC);
+					//   $display("Value at FP_AC = %o", FP_AC);
 				end 
 
 				default: begin
@@ -272,35 +272,110 @@ endtask
 task FP_load;
 	begin
 		EffectiveAddress_FP(MA);
-		$display("Mem[MA][4:11] = %o", Mem[MA][4:11]);
-		//FP_AC = {Mem[MA][4:11],Mem[MA + 1], Mem[MA+2]};
 		FP_AC= {Mem[MA+1][0],Mem[MA][4:11],Mem[MA + 1][1:11],Mem[MA+2]};
+		`ifdef debug	
+			$display("FP_AC = %o", FP_AC);
+		`endif
 	end
 endtask
 
 task FP_store;
 	begin
 	  	EffectiveAddress_FP(MA);
-		//{Mem[MA][4:11],Mem[MA + 1], Mem[MA+2]} = FP_AC;
 		{Mem[MA+1][0],Mem[MA][4:11],Mem[MA + 1][1:11],Mem[MA+2]} = FP_AC;
-		$display("%o", Mem[MA][4:11]);
-		$display("%o", Mem[MA+1]);
-		$display("%o", Mem[MA+2]);
+		`ifdef debug
+			$display("%o", Mem[MA][4:11]);
+			$display("%o", Mem[MA+1]);
+			$display("%o", Mem[MA+2]);
+		`endif
 	end
 endtask
 
+// task FP_mult;
+// 	//reg [11:0] row_1, row_2, row_3;
+// 	reg sgn;
+// 	reg [0:31]temp;
+// 	// reg [0:7] exp;
+// 	integer exp;
+
+// 	reg [0:23]mant_1 ; 
+// 	reg [0:23]mant_2 ;
+// 	reg [0:47]mant_int ;
+// 	reg [0:47]mant_out;
+	
+// 	integer i;
+
+// 	begin
+
+// 		temp = 'b0;
+// 		exp='b0;
+// 		sgn = 'b0;
+// 		mant_1='b0;
+// 		mant_2='b0;
+// 		mant_int='b0;
+// 		mant_out = 'b0;
+// 		i='b0;
+
+// 		EffectiveAddress_FP(MA);
+		
+// 		temp = {Mem[MA+1][0],Mem[MA][4:11],Mem[MA + 1][1:11],Mem[MA+2]};
+// 		$display("temp in mult = %o ", temp);
+// 		sgn = FP_AC[0]^temp[0];
+		
+
+// 		mant_1 = {1'b1,FP_AC[9:31]};
+// 		$display("mant_1 in mult = %b", mant_1);
+// 		mant_2 = {1'b1,temp[9:31]}; 
+// 		$display("mant_2 in mult = %b", mant_2);
+
+// 		for ( i=23; i>=0; i=i-1 )
+// 		begin
+// 			$display ("value of i = %d", 23-i);
+// 			if(mant_2[i] == 1)
+// 			begin
+// 				mant_int = mant_1 << (23-i);
+// 				mant_out = mant_out + mant_int;
+// 			end
+// 		end
+		
+// 		$display("mant_out = %b", mant_out);
+		
+// 		$display("exp 1 = %d", FP_AC[1:8] );
+// 		$display("exp 2 = %d", temp[1:8] );
+		
+// 		if (mant_out[0]==1)
+// 		begin
+// 			exp = FP_AC[1:8] + temp[1:8] - 127 +1; 
+// 			$display("exp value in mult = %d", exp);
+// 			mant_out = mant_out >> 1;
+// 			FP_AC = {sgn,exp[7:0],mant_out[2:+22]};	
+// 			$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] ); 
+// 		end
+
+// 		else if (mant_out[0] == 0)
+// 		begin
+// 			exp = FP_AC[1:8] + temp[1:8] - 127;
+// 			$display("exp value in mult = %d", exp);
+// 			FP_AC = {sgn,exp[7:0],mant_out[2:+22]};
+// 			$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] );
+// 		end
+
+// 	end
+
+// endtask
+
 task FP_mult;
-	//reg [11:0] row_1, row_2, row_3;
 	reg sgn;
 	reg [0:31]temp;
-	// reg [0:7] exp;
-	integer exp;
+	// reg signed [0:8] exp;
+	reg  [0:8] exp;
+
 
 	reg [0:23]mant_1 ; 
 	reg [0:23]mant_2 ;
 	reg [0:47]mant_int ;
 	reg [0:47]mant_out;
-	
+	reg f;
 	integer i;
 
 	begin
@@ -313,6 +388,7 @@ task FP_mult;
 		mant_int='b0;
 		mant_out = 'b0;
 		i='b0;
+        f =0;
 
 		EffectiveAddress_FP(MA);
 		
@@ -320,7 +396,6 @@ task FP_mult;
 		$display("temp in mult = %o ", temp);
 		sgn = FP_AC[0]^temp[0];
 		
-
 		mant_1 = {1'b1,FP_AC[9:31]};
 		$display("mant_1 in mult = %b", mant_1);
 		mant_2 = {1'b1,temp[9:31]}; 
@@ -328,7 +403,6 @@ task FP_mult;
 
 		for ( i=23; i>=0; i=i-1 )
 		begin
-			$display ("value of i = %d", 23-i);
 			if(mant_2[i] == 1)
 			begin
 				mant_int = mant_1 << (23-i);
@@ -340,27 +414,86 @@ task FP_mult;
 		
 		$display("exp 1 = %d", FP_AC[1:8] );
 		$display("exp 2 = %d", temp[1:8] );
+
+         if ((FP_AC[0] == 1 && FP_AC[1:8] =='0) || (temp[0] == 1 && temp[1:8]=='0))
+		begin
+			FP_AC = {1,8'b0,23'b0};	
+            $display("Denormalized Accumulator is %h", FP_AC);
+		end
+		else if((FP_AC[0] == 0 && FP_AC[1:8] =='0) || (temp[0] == 0 && temp[1:8]=='0))
+        begin
+	        FP_AC = {0,8'b0,23'b0};	
+            $display("Accumulator is %h", FP_AC);	
+		end
 		
-		if (mant_out[0]==1)
-		begin
-			exp = FP_AC[1:8] + temp[1:8] - 127 +1; 
-			$display("exp value in mult = %d", exp);
-			mant_out = mant_out >> 1;
-			FP_AC = {sgn,exp[7:0],mant_out[2:+22]};	
-			$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] ); 
-		end
+		else if ((FP_AC[1:8] == 255) || (temp[1:8]==255))
+        begin
+			FP_AC = {1,8'b0,23'b0};	
+			$display("NAN or infinity depeding on significant, Accumulator is %h", FP_AC);
+        end
+ 
+       
+        else
+        begin
+			if (mant_out[0]==1)
+			begin
+				mant_out = mant_out >>1;
+				f=1;
+				mant_out[2:+22] = (mant_out[23]==1)? mant_out[2:+22]+1:mant_out[2:+22];    //:(mant_out[23:24==2'b01)?(mant_out[2:+22]+1):mant_out[2:+22];
+			end
+			
+			else if (mant_out[0]==0)
+			begin    
+				f=0;       
+				mant_out[2:+22] = (mant_out[23]==1)? mant_out[2:+22]+1:mant_out[2:+22];     //(mant_out[23:24]==2'b01)?(mant_out[2:+22]+1):mant_out[2:+22];
+			end
 
-		else if (mant_out[0] == 0)
-		begin
-			exp = FP_AC[1:8] + temp[1:8] - 127;
-			$display("exp value in mult = %d", exp);
-			FP_AC = {sgn,exp[7:0],mant_out[2:+22]};
-			$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] );
-		end
 
+			exp = FP_AC[1:8] + temp[1:8]+ f - 127;
+			// exp = exp + temp[1:8]+ f;  
+			// exp = exp - 127 ; 
+			$display("exp = %b", exp);
+			if (exp[1:8]>=255)
+			begin
+				$display("Overflow");
+				FP_AC = {1,8'b0,23'b0};	
+			end 
+			else if((exp[1:8] == 255 ) && (mant_out != '0))
+			begin
+				$display("NAN");        
+				FP_AC = {1,8'b0,23'b0};
+			end
+			else if((exp[1:8] == 255) && ( mant_out == '0 ))
+			begin
+				$display("Infinity");        
+				FP_AC = {1,8'b0,23'b0};
+			end
+			else if ((exp[1:8] ==0) && (mant_out =='b0))      
+			begin
+				$display("Denormalised");        
+				FP_AC = {1,8'b0,23'b0};
+			end
+			else if ((exp[1:8]==0))//&&(mant_out =='b0)) 
+			begin
+				$display("Denormalized");        
+				FP_AC = {1,8'b0,23'b0};
+			end
+			// else if(exp[1:8]<=-128)
+			// begin
+			// 	$display("underflow");
+			// 	FP_AC = {1,8'b0,23'b0};	
+			// end
+			else
+			begin
+				
+				FP_AC = {sgn,exp[1:8],mant_out[2:+22]};
+				$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[1:8]}, {sgn,mant_out[2:12]}, mant_out[13:24] );
+				$display("FP_AC = %o", FP_AC); 
+			end
+		end
 	end
-
 endtask
+
 
 
 task FP_add;
@@ -379,33 +512,48 @@ task FP_add;
 	reg  [0:23]mant_int ;
 	reg  [0:23]mant_out_sub;
 	reg  [0:24]mant_out_add;
+	integer i;
 
 	begin
 
 		EffectiveAddress_FP(MA); 
 		temp = {Mem[MA+1][0],Mem[MA][4:11],Mem[MA + 1][1:11],Mem[MA+2]};
-		$display("temp in mult = %o ", temp);
+		// $display("temp in mult = %o ", temp);
 
 		exp_1 = FP_AC[1:8];
 		exp_2 = temp[1:8];
 
-		$display("exp_1 = %b", exp_1);
-		$display("exp_2 = %b", exp_2);
+		// $display("exp_1 = %b", exp_1);
+		// $display("exp_2 = %b", exp_2);
 
 		sgn_1 = FP_AC[0];
 		sgn_2 = temp[0];
 		
 		mant_1 = {1'b1,FP_AC[9:31]};
-		$display("mant_1 in ADD = %b", mant_1);
+		// $display("mant_1 in ADD = %b", mant_1);
 		mant_2 = {1'b1,temp[9:31]}; 
-		$display("mant_2 in ADD = %b", mant_2);
+		// $display("mant_2 in ADD = %b", mant_2);
 
-		if (exp_1 == exp_2)
+		if (exp_1 == 8'hff  || exp_2 == 8'hff )
 		begin
-			$display(" both exponents are equal");
+			sgn_out = 1;
+			exp_out = 0;
+			mant_out_add = 0;
+
+			FP_AC= {sgn_out,exp_out,mant_out_add[2:24]};
+			
+			`ifdef debug
+				$display("Value in FP_AC = %o", FP_AC);
+				$display("Output in PDP8 format is NaN \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
+			`endif
+		end
+
+		else if (exp_1 == exp_2)
+		begin
+			// $display(" both exponents are equal");
 			if (sgn_1 == sgn_2)
 			begin
-				$display("signs are equal");
+				// $display("signs are equal");
 				mant_out_add = mant_1 + mant_2;
 				exp_out = exp_1;
 			
@@ -416,28 +564,70 @@ task FP_add;
 					exp_out = exp_out + 1;
 				end
 				FP_AC= {sgn_out,exp_out,mant_out_add[2:24]};
-				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
+				
+				`ifdef debug
+					$display("Addition output in FP_AC = %o", FP_AC);
+					$display("Addition output in PDP8 format \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
+				`endif
 			end
 			else if (sgn_1 != sgn_2)
 			begin
-				$display("signs are not equal");
-				mant_out_sub = mant_1 - mant_2;
-				exp_out = exp_1;
+				// $display("signs are not equal");
 				
-				sgn_out = sgn_1;
-				if (mant_out_sub[0] == 1'b0)
+				if (mant_1 == mant_2)
 				begin
-					mant_out_sub = mant_out_sub << 1;
-					exp_out = exp_out - 1;
+					mant_out_sub =0;
+					sgn_out = 0;
+					exp_out = 0;
+				end
+
+				else if (mant_1 > mant_2)
+				begin
+					mant_out_sub = mant_1- mant_2;
+					sgn_out = sgn_1;
+					exp_out = exp_1;
+					for (i = 0; i<23 ; i++)
+					begin
+						if (mant_out_sub[0] != 1)
+						begin
+							exp_out = exp_out - 1;
+							mant_out_sub = mant_out_sub << 1;
+						end
+						else 
+						 	break;
+					end
+				end
+
+				
+				else if (mant_2 > mant_1)
+				begin
+					mant_out_sub = mant_2 - mant_1;
+					sgn_out = sgn_2;
+					exp_out = exp_2;
+					for (i = 0; i<23 ; i++)
+					begin
+						if (mant_out_sub[0] != 1)
+						begin
+							exp_out = exp_out -1;
+							mant_out_sub = mant_out_sub << 1;
+					
+						end
+						else 
+						 	break;
+					end
 				end
 				FP_AC= {sgn_out,exp_out,mant_out_sub[1:23]};
-				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_sub[1:11]}, mant_out_sub[12:23] );
+				`ifdef debug
+					$display("Addition output in FP_AC = %o", FP_AC);
+					$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_sub[1:11]}, mant_out_sub[12:23] );
+				`endif
 			end
+
 		end
 
 		else if (exp_1 > exp_2)
 		begin
-			$display("accumulator exponent is bigger");
+			// $display("accumulator exponent is bigger");
 			if (sgn_1 == sgn_2)
 			begin
 				exp_diff = exp_1 - exp_2;
@@ -452,12 +642,16 @@ task FP_add;
 					exp_out = exp_out + 1;
 				end
 				FP_AC= {sgn_out,exp_out,mant_out_add[2:24]};
-				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
+
+				`ifdef debug
+					$display("Addition output in FP_AC = %o", FP_AC);
+					$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
+				`endif
 			end
 
 			else if (sgn_1 != sgn_2)
 			begin
-				$display("signs are not equal");
+				// $display("signs are not equal");
 				exp_diff = exp_1 - exp_2;
 				mant_int = mant_2 >> exp_diff;
 				exp_out = exp_1;
@@ -469,14 +663,18 @@ task FP_add;
 					mant_out_sub = mant_out_sub << 1;
 					exp_out = exp_out - 1;
 				end
+
 				FP_AC= {sgn_out,exp_out,mant_out_sub[1:23]};
-				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_sub[1:11]}, mant_out_sub[12:23] );
+				`ifdef debug
+					$display("Addition output in FP_AC = %o", FP_AC);
+					$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_sub[1:11]}, mant_out_sub[12:23] );
+				`endif
 			end
 		end
 
 		else if (exp_2 > exp_1)
 		begin
-			$display("temp exp is big");
+			// $display("temp exp is big");
 			if (sgn_1 == sgn_2)
 			begin
 				exp_diff = exp_2 - exp_1;
@@ -491,12 +689,14 @@ task FP_add;
 					exp_out = exp_out + 1;
 				end
 				FP_AC= {sgn_out,exp_out,mant_out_add[2:24]};
-				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
-
+				`ifdef debug
+					$display("Addition output in FP_AC = %o", FP_AC);
+					$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
+				`endif
 			end
 			else if (sgn_1 != sgn_2)
 			begin
-				$display("signs are not equal");
+				// $display("signs are not equal");
 				exp_diff = exp_2 - exp_1;
 				mant_int = mant_1 >> exp_diff;
 				exp_out = exp_2;
@@ -508,18 +708,18 @@ task FP_add;
 					exp_out = exp_out - 1;
 				end
 				FP_AC= {sgn_out,exp_out,mant_out_sub[1:23]};
-				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_sub[1:11]}, mant_out_sub[12:23] );
+				
+				`ifdef debug
+					$display("Addition output in FP_AC = %o", FP_AC);	
+					$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_sub[1:11]}, mant_out_sub[12:23] );
+				`endif
 			end	
 		end
 		
-		else
-		begin
-			$display("chutiya kata");
-		end
-		$display("exp_out = %b", exp_out);
-		$display("mant_int = %b", mant_int);
-		$display("mant_out_sub = %b", mant_out_sub);
-		$display("mant_out_add = %b", mant_out_add);	
+		// $display("exp_out = %b", exp_out);
+		// $display("mant_int = %b", mant_int);
+		// $display("mant_out_sub = %b", mant_out_sub);
+		// $display("mant_out_add = %b", mant_out_add);	
 	end
 
 endtask
@@ -550,23 +750,21 @@ task EffectiveAddress;
 		end
 	EA = Mem[EA];
 	end
- $display("EA = %o",EA);
-  end
+	`ifdef debug 
+		$display("EA = %o",EA);
+	`endif
+	end
 endtask
   
   
 task EffectiveAddress_FP;
 	output  [0:`WORD_SIZE-1] EA;
 	begin
-		//PC = PC +1;
-	  	EA = Mem[PC];
-		//MEM[EA] = MEM[EA]+3;
-		// EA = Mem[EA];
-		$display("EA = %o",EA);
-		//PC = PC+1;
-
+		EA = Mem[PC];
+		`ifdef debug
+			$display("EA = %o",EA);
+		`endif
 	end	
-
 endtask
   
   
@@ -688,8 +886,8 @@ initial
   
   for (i=0;i<8;i = i + 1)
     begin
-    CPI[i] = 0;
-    IC[i] = 0;
+		CPI[i] = 0;
+		IC[i] = 0;
     end
 
 
@@ -702,8 +900,6 @@ initial
 
     Clocks = 0;
     Fetch;
-	$display("Value of RUN = %d", Run);
-	$display("Opcode value =%d", `OpCode);
 //	$display("%0o %0o %o %o %0o  %0o %0o",PC-1,L,AC,IR,`OpCode,`Page0Bit,`IndirectBit);
 	
     Execute;
