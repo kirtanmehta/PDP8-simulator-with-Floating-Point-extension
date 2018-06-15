@@ -71,7 +71,7 @@ char *LoopHalf2 = "\tFPSTOR\ncptr, c\n"
                   "\ttad bptr\n\ttad d\n\tdca bptr\n"
                   "\ttad cptr\n\ttad d\n\tdca cptr\n"
                   "\ttad count\n\ttad j\n\tsma\n\tjmp loop\n"
-                  "\thlt\n\n*250\n";
+                  "\thlt\n\n*250\nd,11\nj, -1\n";
 
 char * constants_add ="a, 0\n0\n0\n" // 0
                   "b, 200\n0\n0\n"    // 2
@@ -94,7 +94,7 @@ int main(int argc, char **argv )
                 "\n\top --> FPADD or FPMULT\n\t\n");
         exit(1);
     }
-    
+
     if(!strncmp("FPMULT",argv[1],6))
         flag = 1;
     else if(!strncmp("FPADD",argv[1],6))
@@ -108,12 +108,14 @@ int main(int argc, char **argv )
     // Print into specified file name
     fp = fopen("kirtan.as","w");
     fprintf(fp,"%s%s",symboldef,LoopHalf1);
+
     if(flag == 1) // FPMULT
         fprintf(fp,"%s",fpmult);
     else
         fprintf(fp,"%s",fpadd);
     fprintf(fp,"%s",LoopHalf2);
-    
+    fprintf(fp,"count, %o\n",MAX);
+
     format = octalformat;
 
     if(flag == 1)

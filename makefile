@@ -1,5 +1,5 @@
 mem:
-	bin/pal -v kirtan.as
+	bin/pal -v automation/kirtan.as
 
 build:
 	vlib bin/work
