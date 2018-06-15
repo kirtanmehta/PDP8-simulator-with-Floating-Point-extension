@@ -1,5 +1,5 @@
 mem:
-	bin/pal -v mul_test.as
+	bin/pal -v pdp8_fp.as
 
 build:
 	vlib bin/work
@@ -16,3 +16,4 @@ run:
 #	cd ..
 
 all:	mem compile run
+
