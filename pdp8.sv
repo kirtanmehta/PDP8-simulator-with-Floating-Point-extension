@@ -369,27 +369,36 @@ endtask
 
 task FP_add;
 
-	reg sgn;
+	reg sgn_1;
+	reg sgn_2;
+	reg sgn_out;
 	reg [0:31]temp;
 	reg [0:7] exp_1;
 	reg [0:7] exp_2;
 	reg [0:7] exp_out;
 	reg [0:7] exp_diff;
 
-	reg [0:23]mant_1 ; 
-	reg [0:23]mant_2 ;
-	reg [0:24]mant_int ;
-	reg [0:24]mant_out;
+	reg  [0:23]mant_1 ; 
+	reg  [0:23]mant_2 ;
+	reg  [0:23]mant_int ;
+	reg  [0:23]mant_out_sub;
+	reg  [0:24]mant_out_add;
 
 	begin
 
 		EffectiveAddress_FP(MA); 
-		temp = {Mem[MA+1][0],Mem[MA][3:10],Mem[MA + 1][1:11],Mem[MA+2]};
+		temp = {Mem[MA+1][0],Mem[MA][4:11],Mem[MA + 1][1:11],Mem[MA+2]};
 		$display("temp in mult = %o ", temp);
 
 		exp_1 = FP_AC[1:8];
 		exp_2 = temp[1:8];
 
+		$display("exp_1 = %b", exp_1);
+		$display("exp_2 = %b", exp_2);
+
+		sgn_1 = FP_AC[0];
+		sgn_2 = temp[0];
+		
 		mant_1 = {1'b1,FP_AC[9:31]};
 		$display("mant_1 in ADD = %b", mant_1);
 		mant_2 = {1'b1,temp[9:31]}; 
@@ -398,46 +407,135 @@ task FP_add;
 		if (exp_1 == exp_2)
 		begin
 			$display(" both exponents are equal");
-			mant_out = mant_1 + mant_2;
-			exp_out = exp_1;	
+			if (sgn_1 == sgn_2)
+			begin
+				$display("signs are equal");
+				mant_out_add = mant_1 + mant_2;
+				exp_out = exp_1;
+			
+				sgn_out = sgn_1;
+				if (mant_out_add[0] == 1'b1)
+				begin
+					mant_out_add = mant_out_add >> 1;
+					exp_out = exp_out + 1;
+				end
+				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
+			end
+			else if (sgn_1 != sgn_2)
+			begin
+				$display("signs are not equal");
+				mant_out_sub = mant_1 - mant_2;
+				exp_out = exp_1;
+				
+				sgn_out = sgn_1;
+				if (mant_out_sub[0] == 1'b0)
+				begin
+					mant_out_sub = mant_out_sub << 1;
+					exp_out = exp_out - 1;
+				end
+				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_sub[1:11]}, mant_out_sub[12:23] );
+			end
 		end
 
 		else if (exp_1 > exp_2)
 		begin
 			$display("accumulator exponent is bigger");
-			exp_diff = exp_1 - exp_2;
-			mant_int = mant_2 >> exp_diff;
-			exp_out = exp_1;
-			mant_out = mant_int + mant_1; 
+			if (sgn_1 == sgn_2)
+			begin
+				exp_diff = exp_1 - exp_2;
+				mant_int = mant_2 >> exp_diff;
+				exp_out = exp_1;
+				mant_out_add = mant_int + mant_1;
+				sgn_out = sgn_1;
+
+				if (mant_out_add[0] == 1'b1)
+				begin
+					mant_out_add = mant_out_add >> 1;
+					exp_out = exp_out + 1;
+				end
+				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
+			end
+
+			else if (sgn_1 != sgn_2)
+			begin
+				$display("signs are not equal");
+				exp_diff = exp_1 - exp_2;
+				mant_int = mant_2 >> exp_diff;
+				exp_out = exp_1;
+				mant_out_sub = mant_1 - mant_int;
+				sgn_out = sgn_1;
+
+				if (mant_out_sub[0] == 1'b0)
+				begin
+					mant_out_sub = mant_out_sub << 1;
+					exp_out = exp_out - 1;
+				end
+				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_sub[1:11]}, mant_out_sub[12:23] );
+			end
 		end
 
 		else if (exp_2 > exp_1)
 		begin
 			$display("temp exp is big");
-			exp_diff = exp_2 - exp_1;
-			mant_int = mant_1 >> exp_diff;
-			exp_out = exp_2;
-			mant_out = mant_int + mant_2;
+			if (sgn_1 == sgn_2)
+			begin
+				exp_diff = exp_2 - exp_1;
+				mant_int = mant_1 >> exp_diff;
+				exp_out = exp_2;
+				mant_out_add = mant_int + mant_2;
+				sgn_out = sgn_2;
+
+				if (mant_out_add[0] == 1'b1)
+				begin
+					mant_out_add = mant_out_add >> 1;
+					exp_out = exp_out + 1;
+				end
+				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
+
+			end
+			else if (sgn_1 != sgn_2)
+			begin
+				$display("signs are not equal");
+				exp_diff = exp_2 - exp_1;
+				mant_int = mant_1 >> exp_diff;
+				exp_out = exp_2;
+				mant_out_sub = mant_2 - mant_int;
+				sgn_out = sgn_2;
+				if (mant_out_sub[0] == 1'b0)
+				begin
+					mant_out_sub = mant_out_sub << 1;
+					exp_out = exp_out - 1;
+				end
+				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_sub[1:11]}, mant_out_sub[12:23] );
+			end	
 		end
 		
 		else
 		begin
 			$display("chutiya kata");
 		end
+		$display("exp_out = %b", exp_out);
+		$display("mant_int = %b", mant_int);
+		$display("mant_out_sub = %b", mant_out_sub);
+		$display("mant_out_add = %b", mant_out_add);
+		// $display("mant_out[0] = %b", mant_out[0]);
+		// if (mant_out[0] == 1'b1)
+		// begin
+		// 	mant_out = mant_out >> 1;
+		// 	exp_out = exp_out + 1;
+		// 	$display("mant_out_updated = %b", mant_out);
+		// 	$display("mant_out_updated[2:12] = %b", mant_out[2:12]);
+			
+		// end
+
+		// else
+		// begin
+		// 	mant_out = mant_out;
+		// 	exp_out = exp_out;
+		// 	$display("vapas chutiya kata");
+		// end
+
 		
-		if (mant_out[0] == 1'b1)
-		begin
-			mant_out = mant_out >> 1;
-			exp_out = exp_out + 1;
-			// $display("mantissa output = %");
-		end
-
-		else
-		begin
-			$display("vapas chutiya kata");
-		end
-
-		$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] );
 	end
 
 endtask
