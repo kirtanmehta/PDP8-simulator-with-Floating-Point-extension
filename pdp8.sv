@@ -31,12 +31,14 @@
 //
   
 
-module PDP8();
+module PDP8 #(
+	parameter OBJFILENAME = "pdp8_fp"
+);
 
 
 `define WORD_SIZE 12			// 12-bit word
 `define MEM_SIZE  4096			// 4K memory
-`define OBJFILENAME "/u/chenyang/Documents/PDP8-simulator-with-Floating-Point-extension/pdp8_fp.mem"	// input file with object code
+// `define OBJFILENAME "/u/kmehta/Documents/comp_arch/pdp8/PDP8-simulator-with-Floating-Point-extension/pdp8_fp"	// input file with object code
 `define FP_WORD_SIZE 32			// Floating Point word size
 //
 // Processor state (note PDP-8 is a big endian system, bit 0 is MSB)
@@ -149,7 +151,7 @@ integer i;
 
 task LoadObj;
   begin
-  $readmemh(`OBJFILENAME,Mem);
+  $readmemh(OBJFILENAME,Mem);
   end
 endtask
 
@@ -314,7 +316,6 @@ task FP_mult;
 
 		EffectiveAddress_FP(MA);
 		
-		//temp = {Mem[MA][4:11],Mem[MA + 1], Mem[MA+2]};
 		temp = {Mem[MA+1][0],Mem[MA][4:11],Mem[MA + 1][1:11],Mem[MA+2]};
 		$display("temp in mult = %o ", temp);
 		sgn = FP_AC[0]^temp[0];
@@ -357,11 +358,6 @@ task FP_mult;
 			$display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] );
 		end
 
-		
-		
-		// FP_AC = {sgn,exp[7:0],mant_out[2:+22]};
-
-		// $display("Multiplication output \n %o \n %o \n %o",{4'b000,exp[7:0]}, {sgn,mant_out[2:12]}, mant_out[13:24] );
 	end
 
 endtask
@@ -419,6 +415,7 @@ task FP_add;
 					mant_out_add = mant_out_add >> 1;
 					exp_out = exp_out + 1;
 				end
+				FP_AC= {sgn_out,exp_out,mant_out_add[2:24]};
 				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
 			end
 			else if (sgn_1 != sgn_2)
@@ -433,6 +430,7 @@ task FP_add;
 					mant_out_sub = mant_out_sub << 1;
 					exp_out = exp_out - 1;
 				end
+				FP_AC= {sgn_out,exp_out,mant_out_sub[1:23]};
 				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_sub[1:11]}, mant_out_sub[12:23] );
 			end
 		end
@@ -453,6 +451,7 @@ task FP_add;
 					mant_out_add = mant_out_add >> 1;
 					exp_out = exp_out + 1;
 				end
+				FP_AC= {sgn_out,exp_out,mant_out_add[2:24]};
 				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
 			end
 
@@ -470,6 +469,7 @@ task FP_add;
 					mant_out_sub = mant_out_sub << 1;
 					exp_out = exp_out - 1;
 				end
+				FP_AC= {sgn_out,exp_out,mant_out_sub[1:23]};
 				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_sub[1:11]}, mant_out_sub[12:23] );
 			end
 		end
@@ -490,6 +490,7 @@ task FP_add;
 					mant_out_add = mant_out_add >> 1;
 					exp_out = exp_out + 1;
 				end
+				FP_AC= {sgn_out,exp_out,mant_out_add[2:24]};
 				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_add[2:12]}, mant_out_add[13:24] );
 
 			end
@@ -506,6 +507,7 @@ task FP_add;
 					mant_out_sub = mant_out_sub << 1;
 					exp_out = exp_out - 1;
 				end
+				FP_AC= {sgn_out,exp_out,mant_out_sub[1:23]};
 				$display("Addition output \n %o \n %o \n %o",{4'b0000,exp_out}, {sgn_out,mant_out_sub[1:11]}, mant_out_sub[12:23] );
 			end	
 		end
@@ -517,25 +519,7 @@ task FP_add;
 		$display("exp_out = %b", exp_out);
 		$display("mant_int = %b", mant_int);
 		$display("mant_out_sub = %b", mant_out_sub);
-		$display("mant_out_add = %b", mant_out_add);
-		// $display("mant_out[0] = %b", mant_out[0]);
-		// if (mant_out[0] == 1'b1)
-		// begin
-		// 	mant_out = mant_out >> 1;
-		// 	exp_out = exp_out + 1;
-		// 	$display("mant_out_updated = %b", mant_out);
-		// 	$display("mant_out_updated[2:12] = %b", mant_out[2:12]);
-			
-		// end
-
-		// else
-		// begin
-		// 	mant_out = mant_out;
-		// 	exp_out = exp_out;
-		// 	$display("vapas chutiya kata");
-		// end
-
-		
+		$display("mant_out_add = %b", mant_out_add);	
 	end
 
 endtask
