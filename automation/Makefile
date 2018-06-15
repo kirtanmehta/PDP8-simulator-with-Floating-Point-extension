@@ -4,3 +4,5 @@ automation: automation.c
 
 clean: 
 	rm -f automation
+
+
