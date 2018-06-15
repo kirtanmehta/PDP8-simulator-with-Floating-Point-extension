@@ -1,5 +1,5 @@
 mem:
-	bin/pal -v pdp8_fp.as
+	bin/pal -v kirtan.as
 
 build:
 	vlib bin/work
@@ -17,3 +17,5 @@ run:
 
 all:	mem compile run
 
+clean:
+	rm -r kirtan.as

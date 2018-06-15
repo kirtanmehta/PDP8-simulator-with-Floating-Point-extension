@@ -27,23 +27,6 @@ char *octalformat = "%04o\n";
 char *hexformat = "%03x\n";
 char *format;
 
-// Print float in PDP-8 format
-void print(char *format, unsigned int n) 
-{
-    unsigned int exponent;
-    unsigned int upperbits;
-    unsigned int lowerbits;
-
-    exponent = (n >> 23) & 0xFF;
-    upperbits = ((n >> 12) & 0x7FF) | ((n >> 31) << 11);
-    lowerbits = n & 0xFFF;
-
-    printf(format,exponent);
-    printf(format,upperbits);
-    printf(format,lowerbits);
-}
-
-
 void print_file(FILE *fp, char *format, unsigned int n) 
 {
     unsigned int exponent;
@@ -90,6 +73,14 @@ char *LoopHalf2 = "\tFPSTOR\ncptr, c\n"
                   "\ttad count\n\ttad j\n\tsma\n\tjmp loop\n"
                   "\thlt\n\n*250\n";
 
+char * constants_add ="a, 0\n0\n0\n" // 0
+                  "b, 200\n0\n0\n"    // 2
+                  "c, 200\n0\n0\n";
+
+char * constants_mult ="a, 0\n0\n0\n" // 0
+                  "b, 200\n0\n0\n"    // 2
+                  "c, 0\n0\n0\n" ;
+
 int main(int argc, char **argv )
 {
     FILE *fp;
@@ -97,11 +88,10 @@ int main(int argc, char **argv )
     srand((unsigned int)time(NULL));
     int flag = 0;
 
-    if(argc <= 2)
+    if(argc <= 1)
     {
-        fprintf(stdout, "Not enough arguments. \nUsage:\t./rfg <op> <filename>"
-                "\n\top --> FPADD or FPMULT\n\tfilename --> newly"
-                "generated assembly code file\n\n");
+        fprintf(stdout, "Not enough arguments. \nUsage:\t./automation <op>"
+                "\n\top --> FPADD or FPMULT\n\t\n");
         exit(1);
     }
     
@@ -116,7 +106,7 @@ int main(int argc, char **argv )
     }
     
     // Print into specified file name
-    fp = fopen(argv[2],"w");
+    fp = fopen("kirtan.as","w");
     fprintf(fp,"%s%s",symboldef,LoopHalf1);
     if(flag == 1) // FPMULT
         fprintf(fp,"%s",fpmult);
@@ -125,8 +115,13 @@ int main(int argc, char **argv )
     fprintf(fp,"%s",LoopHalf2);
     
     format = octalformat;
-    int i;
 
+    if(flag == 1)
+        fprintf(fp,"%s",constants_mult);
+    else
+        fprintf(fp,"%s",constants_add);
+    
+    int i;
     for(i = 0; i<MAX; i++)
     {
         Op1.f = rfg(range);
@@ -135,10 +130,6 @@ int main(int argc, char **argv )
             result.f = Op1.f * Op2.f;
         else          // FPADD
             result.f = Op1.f + Op2.f;
-
-        print(format, Op1.n);
-        print(format, Op2.n);
-        print(format, result.n);
         
         if(flag == 1)
             fprintf(stdout,"%f * %f = %f",Op1.f, Op2.f, result.f);
@@ -151,6 +142,6 @@ int main(int argc, char **argv )
     }
     fprintf(fp,"$Main");
     fclose(fp);
-    fprintf(stdout,"\n\nAssembly Program generated: %s\n\n\n", argv[2]);
+    fprintf(stdout,"\n\nAssembly Program generated: %s\n\n\n", argv[1]);
     return 0;
 }
