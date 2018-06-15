@@ -36,7 +36,7 @@ module PDP8();
 
 `define WORD_SIZE 12			// 12-bit word
 `define MEM_SIZE  4096			// 4K memory
-`define OBJFILENAME "/u/kmehta/Documents/comp_arch/pdp8/PDP8-simulator-with-Floating-Point-extension/pdp8_fp.mem"	// input file with object code
+`define OBJFILENAME "/u/chenyang/Documents/PDP8-simulator-with-Floating-Point-extension/pdp8_fp.mem"	// input file with object code
 `define FP_WORD_SIZE 32			// Floating Point word size
 //
 // Processor state (note PDP-8 is a big endian system, bit 0 is MSB)
