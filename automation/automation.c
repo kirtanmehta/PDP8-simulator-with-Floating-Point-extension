@@ -1,5 +1,5 @@
 /*
- * This code is used to generate the ramdon float point number as well as the assembly code
+ * This code is used to generate the ramdon float point number as well as the assembly code, thanks to 	Aaron Chan for his generous help
  */
 #include <stdlib.h>
 #include <stdio.h>
