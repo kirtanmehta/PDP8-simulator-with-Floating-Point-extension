@@ -1,6 +1,6 @@
-# vsim -c "+format=o" "+arg=-29.2E-6" -do "run -all;exit" convert 
-# Start time: 05:55:49 on Jun 15,2018
-# ** Note: (vsim-8009) Loading existing optimized design _opt
+# vsim -c "+format=o" "+arg=-3.0" -do "run -all;exit" convert 
+# Start time: 15:56:25 on Jun 15,2018
+# ** Note: (vsim-3812) Design is being optimized...
 # //  Questa Sim-64
 # //  Version 10.4c linux_x86_64 Jul 19 2015
 # //
@@ -18,11 +18,15 @@
 # //
 # Loading sv_std.std
 # Loading work.convert(fast)
+# ** Warning: (vsim-PLI-3003) convert.sv(68): [TOFD] - System task or function '$dsiplay' is not defined.
+#    Time: 0 ns  Iteration: 0  Region: /convert/display File: convert.sv
+# ** Warning: (vsim-PLI-3003) convert.sv(76): [TOFD] - System task or function '$fdsiplay' is not defined.
+#    Time: 0 ns  Iteration: 0  Region: /convert/display File: convert.sv
 # run -all
-# 0157
-# 7517
-# 1206
+# 0200
+# 6000
+# 0000
 # 
 # exit
-# End time: 05:55:50 on Jun 15,2018, Elapsed time: 0:00:01
-# Errors: 0, Warnings: 0
+# End time: 15:56:25 on Jun 15,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 2

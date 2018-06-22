@@ -1,5 +1,8 @@
+FILE ?=  pdp8_fp.mem
+ASS_FILE ?= pdp8_fp.as
+FORMAT ?= oct
 mem:
-	bin/pal -v pdp8_fp.as
+	bin/pal -v $(ASS_FILE)
 
 build:
 	vlib bin/work
@@ -7,15 +10,15 @@ build:
 
 compile:
 	#cd bin
-	vlog +define+debug pdp8.sv
+	vlog +define+$(FORMAT) pdp8.sv
 	#cd ..
 
 run:
 #	cd bin
-	vsim -c -G OBJFILENAME="pdp8_fp.mem" -do "run;exit" PDP8
+	vsim -c -G OBJFILENAME="$(FILE)" -do "run;exit" PDP8
 #	cd ..
 
 all:	mem compile run
 
-clean:
-	rm -r kirtan.as
+help:
+	echo "make labe_name FILE=file_name.mem Format=(bin or oct or hex) ASS_FILE=assembly_file.as"

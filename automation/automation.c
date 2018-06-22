@@ -6,7 +6,7 @@
 #include <string.h>
 #include <time.h>
 
-#define MAX 2
+#define MAX 5
 
 union{
     float f;
@@ -134,9 +134,9 @@ int main(int argc, char **argv )
             result.f = Op1.f + Op2.f;
         
         if(flag == 1)
-            fprintf(stdout,"%f * %f = %f",Op1.f, Op2.f, result.f);
+            fprintf(stdout,"%f * %f = %f \n",Op1.f, Op2.f, result.f);
         else
-            fprintf(stdout,"%f + %f = %f",Op1.f, Op2.f, result.f);
+            fprintf(stdout,"%f + %f = %f \n",Op1.f, Op2.f, result.f);
         print_file(fp, octalformat, Op1.n);
         print_file(fp, octalformat, Op2.n);
         print_file(fp, octalformat, result.n);
